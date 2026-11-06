@@ -63,7 +63,7 @@ h1 {
 .row { padding: .8rem 0; border-bottom: 1px solid var(--line); }
 .row:last-child { border: 0; }
 .row b { display: block; font-size: 1rem; }
-.row span { color: var(--pink-soft); font-size: .85rem; }
+.row span { display: block; color: var(--pink-soft); font-size: .85rem; }
 
 /* Secciones del formulario */
 .sec { padding: 1.6rem var(--pr) 0 var(--pl); }
