@@ -3,12 +3,12 @@
 const CONFIG = {
   evento: "Bikini Open - 21 de noviembre",
   entradas: [
-    { tipo: "Pareja", precio: 35000, conAcompanante: true },
-    { tipo: "Solo",   precio: 35000 },
-    { tipo: "Sola",   precio: 10000 }
+    { tipo: "Pareja", precio: 40000, conAcompanante: true },
+    { tipo: "Solo",   precio: 40000 },
+    { tipo: "Sola",   precio: 15000 }
   ],
   alias: "greist.fest.mp",
-  whatsapp: "5491100000000",            // PENDIENTE: WhatsApp de la dueña (código país + número, sin + ni espacios)
+  whatsapp: "5491160375935",         
   endpoint: "PEGAR_URL_DE_APPS_SCRIPT"  // PENDIENTE: se completa cuando armemos el backend
 };
 
