@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#07030a">
+<title>Bikini Open · GreisFest Devoto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,700;1,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="hero">
+  <p class="brand">
+    <svg width="30" height="22" viewBox="0 0 30 22" aria-hidden="true"><path d="M2 20 0 4l8 7 7-10 7 10 8-7-2 16z" fill="currentColor"/></svg>
+    GreisFest <small>Devoto</small>
+  </p>
+  <h1>Bikini<br>Open</h1>
+  <p class="date">Sábado 21 de noviembre</p>
+</header>
+
+<main>
+  <section class="info">
+    <div class="row"><b>De 23 a 6 hs</b></div>
+    <div class="row"><b>En El Templo</b><span>Pegado a la General Paz · cuidacoche Goriche</span></div>
+    <div class="row"><b>Pizza gratis</b></div>
+  </section>
+
+  <form id="form" novalidate>
+    <section class="sec">
+      <h2><i>1</i>Elegí tu entrada</h2>
+      <p class="hint">Anticipadas hasta el 19 de noviembre inclusive</p>
+      <div id="tickets" class="tickets" role="radiogroup" aria-label="Tipo de entrada"></div>
+
+      <label class="f"><span>Tu nombre y apellido</span>
+        <input type="text" name="nombre" autocomplete="name" required></label>
+      <label class="f" id="campo-acomp"><span>Nombre de tu acompañante</span>
+        <input type="text" name="acompanante" autocomplete="off"></label>
+      <label class="f"><span>Tu WhatsApp</span>
+        <input type="tel" name="telefono" inputmode="tel" autocomplete="tel" placeholder="11 1234 5678" required></label>
+    </section>
+
+    <section class="sec">
+      <h2><i>2</i>Transferí <span id="monto">$0</span></h2>
+      <p class="hint">Al alias de GreisFest</p>
+      <div class="alias">
+        <div><small>Alias</small><strong id="alias-txt"></strong></div>
+        <button type="button" id="copiar">Copiar</button>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2><i>3</i>Subí el comprobante</h2>
+      <p class="hint">Una captura o foto alcanza</p>
+      <label class="up" for="archivo">
+        <b id="up-titulo">Elegir imagen</b>
+        <span id="up-sub">Tocá acá para adjuntarla</span>
+      </label>
+      <input type="file" id="archivo" name="comprobante" accept="image/*" hidden>
+    </section>
+
+    <input type="text" name="web" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+    <p id="error" class="error" role="alert" hidden></p>
+    <button type="submit" id="enviar" class="cta">Anotarme</button>
+    <p class="fine">Revisamos tu comprobante y te confirmamos por WhatsApp.</p>
+  </form>
+
+  <section id="ok" class="ok" hidden>
+    <h2>¡Listo, <span id="ok-nombre"></span>!</h2>
+    <p>Recibimos tu comprobante. Apenas lo revisemos te escribimos por WhatsApp para confirmar tu lugar.</p>
+  </section>
+</main>
+
+<footer>
+  <a id="wa" href="#" target="_blank" rel="noopener">¿Dudas? Escribinos por WhatsApp</a>
+</footer>
+
+<script src="script.js" defer></script>
+</body>
+</html>
