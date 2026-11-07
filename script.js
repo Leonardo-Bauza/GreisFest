@@ -8,9 +8,12 @@ const CONFIG = {
     { tipo: "Sola",   precio: 15000 }
   ],
   alias: "greist.fest.mp",
-  whatsapp: "5491160375935",         
-  endpoint: "PEGAR_URL_DE_APPS_SCRIPT"  // PENDIENTE: se completa cuando armemos el backend
+  whatsapp: "5491160375935",            // ⚠ PEGAR ACÁ EL WHATSAPP DE LA DUEÑA (el que ya tenías cargado)
+  endpoint: "https://script.google.com/macros/s/AKfycbzJzvUbw4u8IdUfgjbORPfWREhuYSDa3ixkBXe5SqwQyNWxzS8MVDdgqHEi7jK0Ja8/exec"  // ⚠ PEGAR ACÁ LA URL que te da Apps Script al publicar
 };
+const MAX_PDF = 3 * 1024 * 1024;        // 3 MB: los PDF no se pueden achicar
+
+class ErrorUsuario extends Error {}     // errores con un mensaje que sí se le muestra a la persona
 
 const $ = (id) => document.getElementById(id);
 const form = $("form");
@@ -54,13 +57,22 @@ $("copiar").addEventListener("click", async () => {
 /* 4. Archivo elegido: muestra el nombre */
 $("archivo").addEventListener("change", () => {
   const f = $("archivo").files[0];
-  $("up-titulo").textContent = f ? f.name : "Elegir imagen";
-  $("up-sub").textContent = f ? "Tocá para cambiarla" : "Tocá acá para adjuntarla";
+  $("up-titulo").textContent = f ? f.name : "Elegir archivo";
+  $("up-sub").textContent = f ? "Tocá para cambiarlo" : "Tocá acá para adjuntarlo";
   document.querySelector(".up").classList.toggle("listo", !!f);
 });
 
-/* 5. Reduce la foto antes de enviarla (una captura de celular pesa varios MB) */
-function comprimir(file, max = 1600, calidad = 0.75) {
+/* 5. Prepara el comprobante: la imagen se achica, el PDF se envía tal cual */
+function leerBase64(file) {
+  return new Promise((ok, fallo) => {
+    const r = new FileReader();
+    r.onload = () => ok(String(r.result).split(",")[1]);
+    r.onerror = () => fallo(new ErrorUsuario("No pudimos leer ese archivo. Probá con otro."));
+    r.readAsDataURL(file);
+  });
+}
+
+function comprimirImagen(file, max = 1600, calidad = 0.75) {
   return new Promise((ok, fallo) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -73,9 +85,19 @@ function comprimir(file, max = 1600, calidad = 0.75) {
       URL.revokeObjectURL(url);
       ok(c.toDataURL("image/jpeg", calidad).split(",")[1]);
     };
-    img.onerror = () => fallo(new Error("No pudimos leer esa imagen. Probá con otra captura."));
+    img.onerror = () => fallo(new ErrorUsuario("No pudimos leer esa imagen. Probá con otra captura o con el PDF."));
     img.src = url;
   });
+}
+
+async function prepararComprobante(file) {
+  const esPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);   // algunos Android no informan el tipo
+  if (esPdf) {
+    if (file.size > MAX_PDF) throw new ErrorUsuario("El PDF pesa más de 3 MB. Probá con una captura del comprobante.");
+    return { base64: await leerBase64(file), tipo: "application/pdf" };
+  }
+  if (!file.type.startsWith("image/")) throw new ErrorUsuario("Adjuntá una captura, una foto o un PDF.");
+  return { base64: await comprimirImagen(file), tipo: "image/jpeg" };
 }
 
 /* 6. Validación */
@@ -102,14 +124,15 @@ form.addEventListener("submit", async (ev) => {
   btn.textContent = "Enviando…";
   try {
     const e = entradaElegida();
+    const adjunto = await prepararComprobante($("archivo").files[0]);
     const datos = {
       evento: CONFIG.evento,
       tipo: e.tipo,
-      monto: e.precio,
       nombre: form.nombre.value.trim(),
       acompanante: e.conAcompanante ? form.acompanante.value.trim() : "",
       telefono: form.telefono.value.trim(),
-      comprobante: await comprimir($("archivo").files[0])
+      comprobante: adjunto.base64,
+      comprobanteTipo: adjunto.tipo
     };
     const r = await fetch(CONFIG.endpoint, {
       method: "POST",
@@ -117,13 +140,13 @@ form.addEventListener("submit", async (ev) => {
       body: JSON.stringify(datos)
     });
     const res = await r.json();
-    if (!res.ok) throw new Error(res.error || "Error al enviar");
+    if (!res.ok) throw new ErrorUsuario(res.error || "Error al enviar");
     $("ok-nombre").textContent = datos.nombre.split(" ")[0];
     form.hidden = true;
     $("ok").hidden = false;
     $("ok").scrollIntoView({ behavior: "smooth" });
   } catch (err) {
-    mostrarError(err.message.startsWith("No pudimos")
+    mostrarError(err instanceof ErrorUsuario
       ? err.message
       : "No se pudo enviar. Probá de nuevo o escribinos por WhatsApp.");
     btn.disabled = false;
